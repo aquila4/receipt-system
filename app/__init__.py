@@ -15,16 +15,29 @@ def create_app():
     # CONFIG
     # ======================
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SECURE"] = False
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    # ======================
+    # DATABASE (RAILWAY SAFE FIX)
+    # ======================
+    database_url = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI")
+
+    if not database_url:
+        raise Exception("DATABASE_URL is missing in Railway environment variables")
+
+    # Fix Railway postgres format issue
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    
+
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "connect_args": {"sslmode": "require"}
-}
+        "connect_args": {"sslmode": "require"}
+    }
 
     # ======================
     # MAIL CONFIG
