@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+        }
+
+        .receipt {
+            width: 700px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .amount {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        img {
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+<div class="receipt">
+
+    <div class="header">
+        <h2>OFFICIAL RECEIPT</h2>
+        <p>Great Marcy Sons Ltd</p>
+    </div>
+
+    <div class="row">
+        <span>Receipt No:</span>
+        <span>{{ receipt.receipt_number }}</span>
+    </div>
+
+    <div class="row">
+        <span>Name:</span>
+        <span>{{ receipt.customer_name }}</span>
+    </div>
+
+    <div class="row">
+        <span>Email:</span>
+        <span>{{ receipt.customer_email }}</span>
+    </div>
+
+    <div class="row">
+        <span>Description:</span>
+        <span>{{ receipt.description }}</span>
+    </div>
+
+    <div class="amount">
+        Amount: ₦{{ receipt.amount }}
+    </div>
+
+    <div class="footer">
+        <div>
+            <img src="file:///app/static/signature.png" width="120">
+        </div>
+
+        <div>
+            <img src="file:///app/static/stamp.png" width="100">
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

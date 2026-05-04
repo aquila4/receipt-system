@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>View Receipt</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #eef2f7, #f8fafc);
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 12px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 12px;
+            border-radius: 20px;
+        }
+
+        .info {
+            margin-top: 25px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .label {
+            color: #64748b;
+        }
+
+        .value {
+            font-weight: 600;
+            color: #0f172a;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .amount {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .amount h2 {
+            margin: 0;
+            color: #16a34a;
+            font-size: 28px;
+        }
+
+        .actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* TRUST BOX */
+        .trust {
+            margin-top: 28px;
+            padding: 18px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .trust a {
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .verify-link {
+            color: #2563eb;
+        }
+
+        .public-link {
+            color: #16a34a;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 12px 0;
+        }
+
+        @media(max-width:600px){
+            .actions {
+                flex-direction: column;
+            }
+
+            .value {
+                max-width: 55%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h2>Receipt Details</h2>
+        <div class="badge">PAID & VERIFIED</div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info">
+
+        <div class="row">
+            <div class="label">Receipt No</div>
+            <div class="value">{{ receipt.receipt_number }}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Customer</div>
+            <div class="value">{{ receipt.customer_name }}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Email</div>
+            <div class="value">{{ receipt.customer_email or "N/A" }}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Description</div>
+            <div class="value">{{ receipt.description or "N/A" }}</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Date</div>
+            <div class="value">
+                {{ receipt.created_at.strftime('%d %b %Y, %H:%M') }}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AMOUNT -->
+    <div class="amount">
+        <p>Total Paid</p>
+        <h2>₦{{ receipt.amount }}</h2>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+
+        <a href="{{ url_for('receipt.receipt_pdf', receipt_number=receipt.receipt_number) }}"
+           class="btn primary">
+            Download PDF
+        </a>
+
+        <a href="{{ url_for('receipt.dashboard') }}"
+           class="btn secondary">
+            Back to Dashboard
+        </a>
+
+    </div>
+
+    <!-- TRUST / VERIFICATION -->
+    <div class="trust">
+
+        <div>🔐 <b>Verify Receipt</b></div>
+
+        <div style="margin-top:6px;">
+            <a class="verify-link"
+               href="{{ url_for('receipt.verify_receipt', code=receipt.receipt_number) }}">
+                /receipt/verify/{{ receipt.receipt_number }}
+            </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>🌐 <b>Public Receipt</b></div>
+
+        <div style="margin-top:6px;">
+            <a class="public-link"
+               href="{{ url_for('receipt.view_receipt', id=receipt.id) }}">
+                /receipt/{{ receipt.id }}
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+</body>
+</html>

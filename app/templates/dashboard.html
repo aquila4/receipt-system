@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+            color: white;
+            padding: 28px 20px;
+            overflow-y: auto;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand img {
+            width: 90px;
+            margin-bottom: 12px;
+        }
+
+        .brand h2 {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #e2e8f0;
+        }
+
+        .menu a {
+            display: block;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            border-radius: 10px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /* SEARCH */
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        /* TABLE */
+        .table-wrap {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            text-align: left;
+            font-size: 13px;
+            padding: 14px 16px;
+        }
+
+        td {
+            padding: 15px 16px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .actions a {
+            color: #2563eb;
+            font-size: 13px;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        /* MOBILE */
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .topbar h1 {
+                font-size: 22px;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <h2>Great Marcy Sons Limited</h2>
+        </div>
+
+        <div class="menu">
+            <a href="/receipt/" class="active">📊 Dashboard</a>
+            <a href="/receipt/create">➕ Create Receipt</a>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="topbar">
+            <h1>Dashboard</h1>
+            <a href="/receipt/create" class="btn">+ New Receipt</a>
+        </div>
+
+        <!-- STATS -->
+        <div class="cards">
+            <div class="card">
+                <div class="card-title">Total Receipts</div>
+                <div class="card-value">{{ total_receipts }}</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Total Revenue</div>
+                <div class="card-value">₦{{ total_amount }}</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Today Revenue</div>
+                <div class="card-value">₦{{ today_total }}</div>
+            </div>
+        </div>
+
+        <!-- SEARCH -->
+        <form method="GET" class="search-box">
+            <input name="q" placeholder="Search customer name...">
+        </form>
+
+        <!-- TABLE -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Receipt No</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in receipts %}
+                    <tr>
+                        <td>{{ r.receipt_number }}</td>
+                        <td>{{ r.customer_name }}</td>
+                        <td>₦{{ r.amount }}</td>
+                        <td><span class="badge">PAID</span></td>
+                        <td class="actions">
+                            <a href="/receipt/{{ r.id }}">View</a>
+                            <a href="/receipt/{{ r.receipt_number }}/pdf">PDF</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
