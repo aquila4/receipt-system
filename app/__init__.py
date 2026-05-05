@@ -19,7 +19,7 @@ def create_app():
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SECURE"] = False
-
+    app.config["BASE_URL"] = os.getenv("BASE_URL")
     # ======================
     # DATABASE (RAILWAY SAFE FIX)
     # ======================
