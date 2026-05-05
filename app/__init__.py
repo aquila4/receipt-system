@@ -18,17 +18,18 @@ def create_app():
 
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SECURE"] = False
+    app.config["SESSION_COOKIE_SECURE"] = True  # IMPORTANT for production HTTPS
+
     app.config["BASE_URL"] = os.getenv("BASE_URL")
+
     # ======================
-    # DATABASE (RAILWAY SAFE FIX)
+    # DATABASE
     # ======================
-    database_url = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI")
+    database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
-        raise Exception("DATABASE_URL is missing in Railway environment variables")
+        raise Exception("DATABASE_URL is missing")
 
-    # Fix Railway postgres format issue
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
 
@@ -40,16 +41,18 @@ def create_app():
     }
 
     # ======================
-    # MAIL CONFIG
+    # MAIL (GMAIL SMTP FIXED)
     # ======================
-    app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
-    app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT") or 587)
-    app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USE_SSL"] = False
     app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
     app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
     app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
 
+    app.config["MAIL_DEBUG"] = False
+    app.config["MAIL_SUPPRESS_SEND"] = False
     # ======================
     # INIT EXTENSIONS
     # ======================

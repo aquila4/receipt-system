@@ -9,71 +9,101 @@ def send_receipt_email(receipt):
     if not receipt.customer_email:
         return
 
-    # ======================
-    # HTML EMAIL TEMPLATE
-    # ======================
     html = render_template_string("""
-    <div style="font-family: Arial, sans-serif; background:#f5f7fb; padding:20px;">
-        <div style="max-width:600px; margin:auto; background:white; border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.05);">
+    <div style="font-family: Arial, sans-serif; background:#f5f7fb; padding:40px 20px;">
+
+        <div style="max-width:600px; margin:auto; background:white; border-radius:12px;
+                    overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.06);">
 
             <!-- HEADER -->
-            <div style="background:#0f172a; color:white; padding:20px; text-align:center;">
-                <h2 style="margin:0;">GREAT MARCY SONS LIMITED</h2>
-                <p style="margin:5px 0 0; font-size:14px; opacity:0.8;">GMC Realty</p>
+            <div style="background:#0f172a; color:white; padding:30px; text-align:center;">
+                <h2 style="margin:0; font-size:20px; letter-spacing:0.5px;">
+                    GREAT MARCY SONS LIMITED
+                </h2>
+
+                <p style="margin:6px 0 0; font-size:13px; opacity:0.85;">
+                    GMC Realty (Property Division)
+                </p>
+
+                <p style="margin:4px 0 0; font-size:12px; opacity:0.6;">
+                    Official Receipt Notification
+                </p>
             </div>
 
             <!-- BODY -->
-            <div style="padding:25px;">
-                <h3 style="margin-top:0;">Hello {{ receipt.customer_name }},</h3>
+            <div style="padding:30px; color:#111827;">
 
-                <p>Thank you for your payment. Your receipt details are below:</p>
+                <h3 style="margin-top:0; font-size:18px;">
+                    Hello {{ receipt.customer_name }},
+                </h3>
 
-                <div style="background:#f9fafb; padding:15px; border-radius:8px;">
-                    <p><strong>Receipt No:</strong> {{ receipt.receipt_number }}</p>
-                    <p><strong>Amount:</strong> ₦{{ "{:,.2f}".format(receipt.amount) }}</p>
-                    <p><strong>Date:</strong> {{ receipt.created_at.strftime("%d %b %Y") }}</p>
-                </div>
-
-                <p style="margin-top:20px;">
-                    Your official receipt is attached as a PDF.
+                <p style="font-size:14px; color:#374151; line-height:1.6;">
+                    Your payment has been successfully processed. Below are your receipt details.
                 </p>
 
-                <!-- VERIFY BUTTON -->
-                <div style="text-align:center; margin:25px 0;">
+                <!-- DETAILS BOX -->
+                <div style="background:#f9fafb; padding:18px; border-radius:10px; margin-top:20px;">
+
+                    <p style="margin:6px 0;">
+                        <strong>Receipt No:</strong> {{ receipt.receipt_number }}
+                    </p>
+
+                    <p style="margin:6px 0;">
+                        <strong>Amount:</strong> ₦{{ "{:,.2f}".format(receipt.amount) }}
+                    </p>
+
+                    <p style="margin:6px 0;">
+                        <strong>Date:</strong> {{ receipt.created_at.strftime("%d %b %Y") }}
+                    </p>
+
+                </div>
+
+                <p style="margin-top:18px; font-size:14px; color:#374151;">
+                    Your official receipt is attached as a downloadable PDF.
+                </p>
+
+                <!-- BUTTON -->
+                <div style="text-align:center; margin-top:25px;">
                     <a href="{{ verify_url }}"
-                       style="background:#2563eb; color:white; padding:12px 20px; text-decoration:none; border-radius:6px; font-weight:bold;">
-                       Verify Receipt
+                       style="background:#2563eb; color:white; padding:12px 22px;
+                       text-decoration:none; border-radius:8px; display:inline-block;
+                       font-weight:bold; font-size:14px;">
+                        Verify Receipt
                     </a>
                 </div>
 
-                <p>If you have any questions, feel free to contact us.</p>
+                <p style="margin-top:25px; font-size:12px; color:#6b7280; text-align:center;">
+                    If you did not expect this email, please ignore it.
+                </p>
+
             </div>
 
             <!-- FOOTER -->
-            <div style="background:#f1f5f9; padding:15px; font-size:12px; text-align:center;">
-                <p>Email: info@greatmarcysonslimited.com</p>
-                <p>Phone: +234 913 907 0404</p>
-                <p>KULENDE AREA, KM5 OLD JEBBA ROAD, Ilorin, Kwara</p>
+            <div style="background:#f1f5f9; padding:18px; text-align:center; font-size:12px; color:#374151;">
+                <p style="margin:4px 0;">info@greatmarcysonslimited.com</p>
+                <p style="margin:4px 0;">+234 913 907 0404</p>
             </div>
 
         </div>
     </div>
-    """, receipt=receipt,
-       verify_url=f"{current_app.config.get('BASE_URL', '')}/receipt/verify/{receipt.receipt_number}"
+    """,
+    receipt=receipt,
+    verify_url=f"{current_app.config.get('BASE_URL','')}/receipt/verify/{receipt.receipt_number}"
     )
 
     # ======================
-    # EMAIL OBJECT
+    # EMAIL MESSAGE
     # ======================
     msg = Message(
-        subject=f"Your Receipt {receipt.receipt_number}",
+        subject=f"Receipt Confirmation - {receipt.receipt_number}",
         recipients=[receipt.customer_email]
     )
 
     msg.html = html
+    msg.body = f"Your receipt {receipt.receipt_number} has been generated and attached."
 
     # ======================
-    # ATTACH PDF
+    # PDF ATTACHMENT
     # ======================
     pdf_buffer = generate_receipt_pdf(receipt)
 
@@ -84,6 +114,6 @@ def send_receipt_email(receipt):
     )
 
     # ======================
-    # SEND
+    # SEND EMAIL
     # ======================
     mail.send(msg)
