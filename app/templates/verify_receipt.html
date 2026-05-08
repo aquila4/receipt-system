@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Receipt Verification</title>
 
     <style>
@@ -42,17 +41,9 @@
             margin-bottom: 20px;
         }
 
-        .logo {
-            margin-bottom: 15px;
-        }
-
         .logo img {
             width: 90px;
-        }
-
-        .info {
-            text-align: left;
-            margin-top: 20px;
+            margin-bottom: 15px;
         }
 
         .row {
@@ -95,12 +86,6 @@
             font-size: 11px;
             color: #94a3b8;
         }
-
-        @media(max-width:600px){
-            .card {
-                padding: 20px;
-            }
-        }
     </style>
 </head>
 
@@ -108,19 +93,14 @@
 
 <div class="container">
 
-<div class="card">
+    <div class="card">
 
-    <!-- LOGO -->
-    <div class="logo">
-        <img src="{{ url_for('static', filename='logo.png') }}">
-    </div>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}">
+        </div>
 
-    <!-- STATUS -->
-    <div class="status">Receipt Verified</div>
-    <div class="badge">AUTHENTIC PAYMENT</div>
-
-    <!-- INFO -->
-    <div class="info">
+        <div class="status">Receipt Verified</div>
+        <div class="badge">AUTHENTIC PAYMENT</div>
 
         <div class="row">
             <div class="label">Company</div>
@@ -139,29 +119,23 @@
 
         <div class="row">
             <div class="label">Date</div>
-            <div class="value">
-                {{ receipt.created_at.strftime('%d %b %Y') }}
-            </div>
+            <div class="value">{{ receipt.created_at.strftime('%d %b %Y') }}</div>
+        </div>
+
+        <div class="amount">
+            <p>Total Paid</p>
+            <h2>₦{{ receipt.amount }}</h2>
+        </div>
+
+        <div class="footer">
+            Great Marcy Sons Limited © {{ receipt.created_at.year }}
+        </div>
+
+        <div class="secure">
+            🔒 This receipt is digitally verified and secure
         </div>
 
     </div>
-
-    <!-- AMOUNT -->
-    <div class="amount">
-        <p>Total Paid</p>
-        <h2>₦{{ receipt.amount }}</h2>
-    </div>
-
-    <!-- FOOTER -->
-    <div class="footer">
-        Great Marcy Sons Limited © {{ receipt.created_at.year }}
-    </div>
-
-    <div class="secure">
-        🔒 This receipt is digitally verified and secure
-    </div>
-
-</div>
 
 </div>
 

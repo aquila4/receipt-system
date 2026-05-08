@@ -2,7 +2,7 @@ from flask import Flask
 from dotenv import load_dotenv
 import os
 
-from .extensions import db, login_manager, mail, migrate
+from .extensions import db, login_manager, migrate
 
 
 def create_app():
@@ -18,9 +18,15 @@ def create_app():
 
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SECURE"] = True  # IMPORTANT for production HTTPS
+    app.config["SESSION_COOKIE_SECURE"] = True
 
     app.config["BASE_URL"] = os.getenv("BASE_URL")
+
+    # ======================
+    # RESEND (NEW EMAIL SYSTEM)
+    # ======================
+    app.config["RESEND_API_KEY"] = os.getenv("RESEND_API_KEY")
+    app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
 
     # ======================
     # DATABASE
@@ -41,24 +47,10 @@ def create_app():
     }
 
     # ======================
-    # MAIL (GMAIL SMTP FIXED)
-    # ======================
-    app.config["MAIL_SERVER"] = "smtp.gmail.com"
-    app.config["MAIL_PORT"] = 587
-    app.config["MAIL_USE_TLS"] = True
-    app.config["MAIL_USE_SSL"] = False
-    app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
-    app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
-    app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
-
-    app.config["MAIL_DEBUG"] = False
-    app.config["MAIL_SUPPRESS_SEND"] = False
-    # ======================
     # INIT EXTENSIONS
     # ======================
     db.init_app(app)
     login_manager.init_app(app)
-    mail.init_app(app)
     migrate.init_app(app, db)
 
     login_manager.login_view = "auth.login"

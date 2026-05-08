@@ -22,9 +22,7 @@ def dashboard():
 
     search = request.args.get("q")
 
-    query = Receipt.query.filter_by(
-        company_id=current_user.company_id
-    )
+    query = Receipt.query.filter_by(company_id=current_user.company_id)
 
     if search:
         query = query.filter(Receipt.customer_name.ilike(f"%{search}%"))
@@ -51,7 +49,7 @@ def dashboard():
     )
 
 # ======================
-# CREATE RECEIPT
+# CREATE RECEIPT (EMAIL FIXED HERE)
 # ======================
 @receipt_bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -85,24 +83,25 @@ def create_receipt():
     db.session.add(receipt)
     db.session.commit()
 
+    # ======================
+    # SEND EMAIL (RESEND)
+    # ======================
     try:
         send_receipt_email(receipt)
+        print("Email sent successfully")
     except Exception as e:
         print("Email failed:", e)
 
     flash("Receipt created successfully!", "success")
-
     return redirect(url_for("receipt.dashboard"))
 
 # ======================
-# VERIFY RECEIPT (PUBLIC)
+# VERIFY RECEIPT
 # ======================
 @receipt_bp.route("/verify/<code>")
 def verify_receipt(code):
 
-    receipt = Receipt.query.filter_by(
-        receipt_number=code
-    ).first()
+    receipt = Receipt.query.filter_by(receipt_number=code).first()
 
     if not receipt:
         return "Receipt not found", 404
@@ -117,28 +116,20 @@ def verify_receipt(code):
 def view_receipt(id):
 
     receipt = Receipt.query.get_or_404(id)
-
     return render_template("view_receipt.html", receipt=receipt)
 
 # ======================
-# PDF DOWNLOAD (REPORTLAB FIXED)
+# PDF DOWNLOAD
 # ======================
 @receipt_bp.route("/<receipt_number>/pdf")
 @login_required
 def receipt_pdf(receipt_number):
 
-    receipt = Receipt.query.filter_by(
-        receipt_number=receipt_number
-    ).first_or_404()
+    receipt = Receipt.query.filter_by(receipt_number=receipt_number).first_or_404()
 
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
 
-    width, height = letter
-
-    # ======================
-    # HEADER
-    # ======================
     pdf.setFont("Helvetica-Bold", 18)
     pdf.drawCentredString(300, 760, "GREAT MARCY SONS LIMITED")
 
@@ -147,9 +138,6 @@ def receipt_pdf(receipt_number):
 
     pdf.line(50, 730, 550, 730)
 
-    # ======================
-    # DETAILS
-    # ======================
     y = 690
     line_height = 25
 
@@ -167,44 +155,12 @@ def receipt_pdf(receipt_number):
     row("Description", receipt.description or "N/A")
     row("Date", receipt.created_at.strftime("%d %b %Y"))
 
-    # ======================
-    # AMOUNT BOX
-    # ======================
     pdf.rect(60, 420, 480, 50)
     pdf.setFont("Helvetica-Bold", 14)
     pdf.drawString(80, 440, "TOTAL AMOUNT")
     pdf.setFont("Helvetica-Bold", 16)
     pdf.drawString(250, 440, f"₦{receipt.amount:,.2f}")
 
-    # ======================
-    # STAMP (LEFT)
-    # ======================
-    stamp_path = "app/static/stamp.png"
-    pdf.drawImage(stamp_path, 60, 180, width=110, height=110, mask='auto')
-
-    # ======================
-    # SIGNATURE (RIGHT)
-    # ======================
-    signature_path = "app/static/signature.png"
-    pdf.drawImage(signature_path, 350, 200, width=140, height=60, mask='auto')
-
-    pdf.setFont("Helvetica", 9)
-    pdf.drawString(350, 190, "Authorized Signature")
-
-    # ======================
-    # CONTACT US (CENTER-BOTTOM)
-    # ======================
-    pdf.setFont("Helvetica-Bold", 11)
-    pdf.drawString(60, 130, "Contact Us")
-
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(60, 115, "Email: info@greatmarcysonslimited.com")
-    pdf.drawString(60, 100, "Phone: +234 913 907 0404")
-    pdf.drawString(60, 85, "Address: KULENDE AREA, KM5 OLD JEBBA ROAD, Sango Rd, Ilorin 240101, Kwara")
-
-    # ======================
-    # FOOTER
-    # ======================
     pdf.setFont("Helvetica-Oblique", 10)
     pdf.drawCentredString(300, 60, "Thank you for your business")
 
