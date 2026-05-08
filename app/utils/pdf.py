@@ -1,6 +1,7 @@
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import os
 
 
 def generate_receipt_pdf(receipt):
@@ -11,16 +12,22 @@ def generate_receipt_pdf(receipt):
     width, height = letter
 
     # ======================
+    # SAFE PATHS (IMPORTANT FIX)
+    # ======================
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    signature_path = os.path.join(base_dir, "../static/signature.png")
+    stamp_path = os.path.join(base_dir, "../static/stamp.png")
+
+    # ======================
     # HEADER
     # ======================
     pdf.setFont("Helvetica-Bold", 20)
     pdf.drawCentredString(300, 770, "GREAT MARCY SONS LIMITED")
 
-    # SUB NAME (GMC Realty)
     pdf.setFont("Helvetica-Oblique", 12)
-    pdf.drawCentredString(300, 750, "GMC Realty")
+    pdf.drawCentredString(300, 750, "GMC Realty (Property Division)")
 
-    # TITLE
     pdf.setFont("Helvetica", 12)
     pdf.drawCentredString(300, 730, "OFFICIAL RECEIPT")
 
@@ -30,13 +37,13 @@ def generate_receipt_pdf(receipt):
     # DETAILS
     # ======================
     y = 680
-    line_height = 25
+    line_height = 24
 
     def row(label, value):
         nonlocal y
-        pdf.setFont("Helvetica-Bold", 12)
+        pdf.setFont("Helvetica-Bold", 11)
         pdf.drawString(60, y, f"{label}:")
-        pdf.setFont("Helvetica", 12)
+        pdf.setFont("Helvetica", 11)
         pdf.drawString(180, y, str(value))
         y -= line_height
 
@@ -59,35 +66,49 @@ def generate_receipt_pdf(receipt):
     pdf.drawString(300, 445, f"₦{receipt.amount:,.2f}")
 
     # ======================
-    # SIGNATURE
+    # STAMP (FIXED POSITION)
     # ======================
     try:
-        pdf.drawImage("app/static/signature.png", 350, 180, width=140, height=60, mask='auto')
+        pdf.drawImage(
+            stamp_path,
+            70,
+            250,
+            width=110,
+            height=110,
+            mask='auto'
+        )
+    except Exception as e:
+        print("STAMP ERROR:", e)
+
+    # ======================
+    # SIGNATURE (FIXED POSITION)
+    # ======================
+    try:
+        pdf.drawImage(
+            signature_path,
+            350,
+            270,
+            width=140,
+            height=60,
+            mask='auto'
+        )
         pdf.setFont("Helvetica", 9)
-        pdf.drawString(350, 170, "Authorized Signature")
-    except:
-        pass  # prevents crash if image missing
+        pdf.drawString(350, 260, "Authorized Signature")
+    except Exception as e:
+        print("SIGNATURE ERROR:", e)
 
     # ======================
-    # STAMP
-    # ======================
-    try:
-        pdf.drawImage("app/static/stamp.png", 80, 160, width=110, height=110, mask='auto')
-    except:
-        pass
-
-    # ======================
-    # CONTACT SECTION
+    # CONTACT SECTION (FIXED SPACING)
     # ======================
     pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(60, 120, "Contact Us")
+    pdf.drawString(60, 140, "Contact Us")
 
     pdf.setFont("Helvetica", 10)
-    pdf.drawString(60, 105, "Email: info@greatmarcysonslimited.com")
-    pdf.drawString(60, 90, "Phone: +234 913 907 0404")
+    pdf.drawString(60, 125, "Email: info@greatmarcysonslimited.com")
+    pdf.drawString(60, 110, "Phone: +234 913 907 0404")
     pdf.drawString(
         60,
-        75,
+        95,
         "Address: KULENDE AREA, KM5 OLD JEBBA ROAD, Sango Rd, Ilorin 240101, Kwara"
     )
 

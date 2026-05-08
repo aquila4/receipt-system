@@ -75,13 +75,24 @@ def send_receipt_email(receipt):
                     </a>
                 </div>
 
-                <!-- FALLBACK LINK -->
-                <p style="margin-top:15px; font-size:12px; color:#6b7280; text-align:center;">
-                    If the button doesn’t work, copy and open:<br>
-                    <a href="{{ verify_url }}" target="_blank" style="color:#2563eb;">
-                        {{ verify_url }}
-                    </a>
-                </p>
+                <!-- MOBILE SAFE FALLBACK -->
+                <div style="margin-top:18px; text-align:center; font-size:12px; color:#6b7280;">
+
+                    <p style="margin-bottom:8px;">
+                        If the button doesn’t work, tap and hold the link below:
+                    </p>
+
+                    <p style="word-break:break-all; padding:10px;
+                              background:#f9fafb; border:1px solid #e5e7eb;
+                              border-radius:8px;">
+                        <a href="{{ verify_url }}"
+                           target="_blank"
+                           style="color:#2563eb; text-decoration:none; font-weight:600;">
+                            {{ verify_url }}
+                        </a>
+                    </p>
+
+                </div>
 
                 <p style="margin-top:20px; font-size:12px; color:#9ca3af; text-align:center;">
                     If you received this by mistake, you can safely ignore this email.

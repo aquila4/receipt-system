@@ -2,10 +2,10 @@ from flask import Blueprint, flash, request, render_template, redirect, url_for,
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from io import BytesIO
-
+from flask import send_file
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-
+from app.utils.pdf import generate_receipt_pdf
 from app.extensions import db
 from app.models.receipt import Receipt
 from app.utils.generator import generate_receipt_number
@@ -121,54 +121,19 @@ def view_receipt(id):
 # ======================
 # PDF DOWNLOAD
 # ======================
+
+
 @receipt_bp.route("/<receipt_number>/pdf")
 @login_required
 def receipt_pdf(receipt_number):
 
     receipt = Receipt.query.filter_by(receipt_number=receipt_number).first_or_404()
 
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
+    pdf_buffer = generate_receipt_pdf(receipt)
 
-    pdf.setFont("Helvetica-Bold", 18)
-    pdf.drawCentredString(300, 760, "GREAT MARCY SONS LIMITED")
-
-    pdf.setFont("Helvetica", 12)
-    pdf.drawCentredString(300, 740, "OFFICIAL RECEIPT")
-
-    pdf.line(50, 730, 550, 730)
-
-    y = 690
-    line_height = 25
-
-    def row(label, value):
-        nonlocal y
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(60, y, f"{label}:")
-        pdf.setFont("Helvetica", 12)
-        pdf.drawString(180, y, str(value))
-        y -= line_height
-
-    row("Receipt No", receipt.receipt_number)
-    row("Customer", receipt.customer_name)
-    row("Email", receipt.customer_email or "N/A")
-    row("Description", receipt.description or "N/A")
-    row("Date", receipt.created_at.strftime("%d %b %Y"))
-
-    pdf.rect(60, 420, 480, 50)
-    pdf.setFont("Helvetica-Bold", 14)
-    pdf.drawString(80, 440, "TOTAL AMOUNT")
-    pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(250, 440, f"₦{receipt.amount:,.2f}")
-
-    pdf.setFont("Helvetica-Oblique", 10)
-    pdf.drawCentredString(300, 60, "Thank you for your business")
-
-    pdf.save()
-    buffer.seek(0)
-
-    response = make_response(buffer.read())
-    response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = f"inline; filename={receipt_number}.pdf"
-
-    return response
+    return send_file(
+        pdf_buffer,
+        mimetype="application/pdf",
+        as_attachment=False,
+        download_name=f"{receipt_number}.pdf"
+    )
